@@ -449,6 +449,47 @@ END CATCH
 END;
 GO
 
+--READ EMPRESTIMO POR LIVRO E PESSOA
+CREATE PROCEDURE sp_emprestimo_prettier_select
+    @id INT = NULL
+AS
+BEGIN
+    BEGIN TRY
+        IF (@id IS NULL)
+        BEGIN
+            SELECT 
+                e.id AS emprestimo_id, 
+                e.status_emprestimo, 
+                l.titulo, 
+                p.nome
+            FROM emprestimo AS e
+            INNER JOIN livro AS l ON l.id = e.id_livro
+            INNER JOIN pessoa AS p ON p.id = e.id_pessoa
+            ORDER BY e.id ASC;
+        END
+        ELSE
+        BEGIN
+            SELECT 
+                e.id AS emprestimo_id, 
+                e.status_emprestimo, 
+                l.titulo, 
+                p.nome
+            FROM emprestimo AS e
+            INNER JOIN livro AS l ON l.id = e.id_livro
+            INNER JOIN pessoa AS p ON p.id = e.id_pessoa
+            WHERE e.id = @id
+            ORDER BY e.id ASC;
+        END
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErroMsg NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR('Erro ao selecionar empréstimo: %s', 16, 1, @ErroMsg);
+    END CATCH
+END
+GO
+    
+
+
 -- UPDATE
 CREATE PROCEDURE sp_emprestimo_update
     @id INT,
